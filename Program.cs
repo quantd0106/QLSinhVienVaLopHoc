@@ -11,6 +11,7 @@ namespace QLSinhVienVaLopHoc
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
+        /// them ghi chu
         [STAThread]
         static void Main()
         {
