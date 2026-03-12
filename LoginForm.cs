@@ -9,7 +9,7 @@ namespace QLSinhVienVaLopHoc
         {
             InitializeComponent();
         }
-
+        // them ghi chu 
         private void btnLogin_Click(object sender, EventArgs e)
         {
             if (txtUsername.Text == "quanTD" && txtPassword.Text == "0022568")

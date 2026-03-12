@@ -12,6 +12,7 @@ namespace QLSinhVienVaLopHoc
         }
 
         // Hàm tạo sẵn một vài dữ liệu giả để Form trông đẹp hơn khi nộp bài
+        // them ghi chu
         private void LoadMockData()
         {
             dgvSinhVien.Rows.Add("0022568", "quanTD", "Nam", "11/03/2005", "IT01");
