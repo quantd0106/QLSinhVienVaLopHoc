@@ -23,6 +23,7 @@ namespace QLSinhVienVaLopHoc
             this.SuspendLayout();
             
             // lblUsername
+            // them ghi chu 
             this.lblUsername.AutoSize = true;
             this.lblUsername.Location = new System.Drawing.Point(50, 45);
             this.lblUsername.Name = "lblUsername";

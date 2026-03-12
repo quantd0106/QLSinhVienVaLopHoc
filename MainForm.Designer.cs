@@ -45,6 +45,7 @@ namespace QLSinhVienVaLopHoc
             this.SuspendLayout();
             
             // grpThongTin
+            // them ghi chu
             this.grpThongTin.Controls.Add(this.btnLamMoi);
             this.grpThongTin.Controls.Add(this.btnXoa);
             this.grpThongTin.Controls.Add(this.btnSua);
