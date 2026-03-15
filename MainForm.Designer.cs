@@ -1,5 +1,6 @@
 namespace QLSinhVienVaLopHoc
 {
+    // commit
     partial class MainForm
     {
         private System.ComponentModel.IContainer components = null;

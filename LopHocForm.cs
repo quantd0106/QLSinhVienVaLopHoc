@@ -5,6 +5,7 @@ using System.Windows.Forms;
 
 namespace QLSinhVienVaLopHoc
 {
+    //commit
     public partial class LopHocForm : Form
     {
         // THAY ĐỔI CHUỖI KẾT NỐI GIỐNG VỚI MAINFORM CỦA BẠN

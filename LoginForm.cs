@@ -9,7 +9,7 @@ namespace QLSinhVienVaLopHoc
         {
             InitializeComponent();
         }
-        // them ghi chu 
+        // commit
         private void btnLogin_Click(object sender, EventArgs e)
         {
             // Kiểm tra thông tin đăng nhập
