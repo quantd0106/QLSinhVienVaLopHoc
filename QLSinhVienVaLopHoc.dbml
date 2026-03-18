@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?><Database Name="QLSinhVienVaLopHocDB" Class="QLSinhVienVaLopHocDataContext" xmlns="http://schemas.microsoft.com/linqtosql/dbml/2007">
+  <Connection Mode="AppSettings" ConnectionString="Data Source=MSI\SQLEXPRESS;Initial Catalog=QLSinhVienVaLopHocDB;Integrated Security=True;Trust Server Certificate=True" SettingsObjectName="QLSinhVienVaLopHoc.Properties.Settings" SettingsPropertyName="QLSinhVienVaLopHocDBConnectionString" Provider="System.Data.SqlClient" />
+  <Table Name="dbo.LopHoc" Member="LopHocs">
+    <Type Name="LopHoc">
+      <Column Name="MaLop" Type="System.String" DbType="NVarChar(50) NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="TenLop" Type="System.String" DbType="NVarChar(100)" CanBeNull="true" />
+      <Column Name="Khoa" Type="System.String" DbType="NVarChar(100)" CanBeNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.SinhVien" Member="SinhViens">
+    <Type Name="SinhVien">
+      <Column Name="MaSV" Type="System.String" DbType="NVarChar(50) NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="HoTen" Type="System.String" DbType="NVarChar(100)" CanBeNull="true" />
+      <Column Name="GioiTinh" Type="System.String" DbType="NVarChar(10)" CanBeNull="true" />
+      <Column Name="NgaySinh" Type="System.DateTime" DbType="Date" CanBeNull="true" />
+      <Column Name="Lop" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />
+    </Type>
+  </Table>
+</Database>

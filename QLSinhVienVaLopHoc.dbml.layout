@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ordesignerObjectsDiagram dslVersion="1.0.0.0" absoluteBounds="0, 0, 11, 8.5" name="QLSinhVienVaLopHoc">
+  <DataContextMoniker Name="/QLSinhVienVaLopHocDataContext" />
+  <nestedChildShapes>
+    <classShape Id="2f581402-88b9-42ab-8f33-066affd31eb5" absoluteBounds="2.875, 1.375, 2, 1.3862939453125">
+      <DataClassMoniker Name="/QLSinhVienVaLopHocDataContext/LopHoc" />
+      <nestedChildShapes>
+        <elementListCompartment Id="183449b0-3880-4a21-85ef-dae1a181a87f" absoluteBounds="2.89, 1.835, 1.9700000000000002, 0.8262939453125" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <classShape Id="1c9eba9d-4692-4d7d-9ff5-a68f8d3e927b" absoluteBounds="5.625, 1.5, 2, 1.7708968098958331">
+      <DataClassMoniker Name="/QLSinhVienVaLopHocDataContext/SinhVien" />
+      <nestedChildShapes>
+        <elementListCompartment Id="d3977ca6-0a8e-4f68-97c3-d78bfcd267ff" absoluteBounds="5.6400000000000006, 1.96, 1.9700000000000002, 1.2108968098958333" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+  </nestedChildShapes>
+</ordesignerObjectsDiagram>

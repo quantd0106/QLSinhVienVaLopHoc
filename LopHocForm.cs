@@ -1,20 +1,15 @@
 using System;
-using System.Data;
-using System.Data.SqlClient;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace QLSinhVienVaLopHoc
 {
-    //commit
     public partial class LopHocForm : Form
     {
-        // THAY ĐỔI CHUỖI KẾT NỐI GIỐNG VỚI MAINFORM CỦA BẠN
-        string connectionString = @"Data Source=MSI\SQLEXPRESS;Initial Catalog=QLSinhVienVaLopHocDB;Integrated Security=True";
-
         public LopHocForm()
         {
             InitializeComponent();
-            
+
             btnThem.Click += btnThem_Click;
             btnSua.Click += btnSua_Click;
             btnXoa.Click += btnXoa_Click;
@@ -25,33 +20,39 @@ namespace QLSinhVienVaLopHoc
             LoadData();
         }
 
-        private void LoadData(string query = "SELECT * FROM LopHoc")
+        // --- TẢI DỮ LIỆU LỚP HỌC BẰNG LINQ ---
+        private void LoadData(string keyword = "")
         {
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            try
             {
-                try
+                using (var db = new QLSinhVienVaLopHocDataContext())
                 {
-                    conn.Open();
-                    SqlDataAdapter da = new SqlDataAdapter(query, conn);
-                    DataTable dt = new DataTable();
-                    da.Fill(dt);
+                    var query = db.LopHocs.AsQueryable();
+
+                    if (!string.IsNullOrEmpty(keyword))
+                    {
+                        query = query.Where(l => l.MaLop.Contains(keyword) || l.TenLop.Contains(keyword));
+                    }
 
                     dgvLopHoc.AutoGenerateColumns = false;
+
+                    // BỔ SUNG MAP DỮ LIỆU ĐỂ HIỂN THỊ LÊN BẢNG
                     dgvLopHoc.Columns["colMaLop"].DataPropertyName = "MaLop";
                     dgvLopHoc.Columns["colTenLop"].DataPropertyName = "TenLop";
                     dgvLopHoc.Columns["colKhoa"].DataPropertyName = "Khoa";
 
-                    dgvLopHoc.DataSource = dt;
+                    dgvLopHoc.DataSource = query.ToList();
                 }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Lỗi kết nối CSDL: " + ex.Message);
-                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi tải dữ liệu: " + ex.Message);
             }
         }
 
         private void btnLamMoi_Click(object sender, EventArgs e)
         {
+            this.ActiveControl = null;
             txtMaLop.Clear();
             txtTenLop.Clear();
             txtKhoa.Clear();
@@ -62,45 +63,112 @@ namespace QLSinhVienVaLopHoc
 
         private void btnThem_Click(object sender, EventArgs e)
         {
+            this.ActiveControl = null;
             if (string.IsNullOrEmpty(txtMaLop.Text) || string.IsNullOrEmpty(txtTenLop.Text))
             {
                 MessageBox.Show("Vui lòng nhập Mã lớp và Tên lớp!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-            string query = "INSERT INTO LopHoc (MaLop, TenLop, Khoa) VALUES (@MaLop, @TenLop, @Khoa)";
-            ExecuteQuery(query, "Thêm lớp học thành công!");
+
+            try
+            {
+                using (var db = new QLSinhVienVaLopHocDataContext())
+                {
+                    if (db.LopHocs.Any(l => l.MaLop == txtMaLop.Text.Trim()))
+                    {
+                        MessageBox.Show("Mã lớp này đã tồn tại!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+
+                    LopHoc lopNew = new LopHoc
+                    {
+                        MaLop = txtMaLop.Text.Trim(),
+                        TenLop = txtTenLop.Text.Trim(),
+                        Khoa = txtKhoa.Text.Trim()
+                    };
+
+                    db.LopHocs.InsertOnSubmit(lopNew);
+                    db.SubmitChanges();
+
+                    MessageBox.Show("Thêm lớp học thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    LoadData();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi thêm dữ liệu: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void btnSua_Click(object sender, EventArgs e)
         {
+            this.ActiveControl = null;
             if (string.IsNullOrEmpty(txtMaLop.Text))
             {
                 MessageBox.Show("Vui lòng chọn lớp học cần sửa!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-            string query = "UPDATE LopHoc SET TenLop=@TenLop, Khoa=@Khoa WHERE MaLop=@MaLop";
-            ExecuteQuery(query, "Cập nhật lớp học thành công!");
+
+            try
+            {
+                using (var db = new QLSinhVienVaLopHocDataContext())
+                {
+                    LopHoc lopEdit = db.LopHocs.SingleOrDefault(l => l.MaLop == txtMaLop.Text.Trim());
+                    if (lopEdit != null)
+                    {
+                        lopEdit.TenLop = txtTenLop.Text.Trim();
+                        lopEdit.Khoa = txtKhoa.Text.Trim();
+
+                        db.SubmitChanges();
+                        MessageBox.Show("Cập nhật lớp học thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        LoadData();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi cập nhật: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void btnXoa_Click(object sender, EventArgs e)
         {
+            this.ActiveControl = null;
             if (string.IsNullOrEmpty(txtMaLop.Text))
             {
                 MessageBox.Show("Vui lòng chọn lớp học cần xóa!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
+
             if (MessageBox.Show("Bạn có chắc chắn muốn xóa lớp này?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
-                string query = "DELETE FROM LopHoc WHERE MaLop=@MaLop";
-                ExecuteQuery(query, "Xóa lớp học thành công!");
+                try
+                {
+                    using (var db = new QLSinhVienVaLopHocDataContext())
+                    {
+                        LopHoc lopDelete = db.LopHocs.SingleOrDefault(l => l.MaLop == txtMaLop.Text.Trim());
+                        if (lopDelete != null)
+                        {
+                            db.LopHocs.DeleteOnSubmit(lopDelete);
+                            db.SubmitChanges();
+
+                            MessageBox.Show("Xóa lớp học thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            LoadData();
+                            btnLamMoi_Click(null, null);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Lỗi xóa dữ liệu (Có thể lớp này đang chứa sinh viên): " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
 
         private void btnTim_Click(object sender, EventArgs e)
         {
-            string keyword = txtTimKiem.Text.Trim();
-            string query = $"SELECT * FROM LopHoc WHERE MaLop LIKE N'%{keyword}%' OR TenLop LIKE N'%{keyword}%'";
-            LoadData(query);
+            this.ActiveControl = null;
+            LoadData(txtTimKiem.Text.Trim());
         }
 
         private void dgvLopHoc_CellClick(object sender, DataGridViewCellEventArgs e)
@@ -111,33 +179,6 @@ namespace QLSinhVienVaLopHoc
                 txtMaLop.Text = row.Cells["colMaLop"].Value?.ToString();
                 txtTenLop.Text = row.Cells["colTenLop"].Value?.ToString();
                 txtKhoa.Text = row.Cells["colKhoa"].Value?.ToString();
-            }
-        }
-
-        private void ExecuteQuery(string query, string successMessage)
-        {
-            using (SqlConnection conn = new SqlConnection(connectionString))
-            {
-                using (SqlCommand cmd = new SqlCommand(query, conn))
-                {
-                    cmd.Parameters.AddWithValue("@MaLop", txtMaLop.Text);
-                    cmd.Parameters.AddWithValue("@TenLop", txtTenLop.Text);
-                    cmd.Parameters.AddWithValue("@Khoa", txtKhoa.Text);
-
-                    try
-                    {
-                        conn.Open();
-                        if (cmd.ExecuteNonQuery() > 0)
-                        {
-                            MessageBox.Show(successMessage, "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                            LoadData();
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show("Lỗi: " + ex.Message, "Lỗi SQL", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                }
             }
         }
     }
