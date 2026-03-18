@@ -1,20 +1,19 @@
 using System;
 using System.Data;
-using System.Data.SqlClient; // Thư viện để làm việc với SQL Server
+using System.Data.SqlClient;
 using System.Windows.Forms;
 
-namespace QLSinhVienVaLopHoc // Giữ nguyên namespace của bạn
+namespace QLSinhVienVaLopHoc
 {
     public partial class MainForm : Form
     {
-        // 1. CHUỖI KẾT NỐI (Thay TEN_MAY_TINH_CUA_BAN bằng Server Name của bạn)
+        // ⚠️ THAY ĐỔI CHUỖI KẾT NỐI VÀ TÊN DATABASE CHO ĐÚNG VỚI MÁY CỦA BẠN
         string connectionString = @"Data Source=MSI\SQLEXPRESS;Initial Catalog=QLSinhVienVaLopHocDB;Integrated Security=True";
 
         public MainForm()
         {
             InitializeComponent();
 
-            // Gán sự kiện cho các nút bấm bằng code để bạn không phải kéo thả lại
             btnThem.Click += btnThem_Click;
             btnSua.Click += btnSua_Click;
             btnXoa.Click += btnXoa_Click;
@@ -22,8 +21,32 @@ namespace QLSinhVienVaLopHoc // Giữ nguyên namespace của bạn
             btnTim.Click += btnTim_Click;
             dgvSinhVien.CellClick += dgvSinhVien_CellClick;
 
-            // Load dữ liệu khi vừa mở Form
-            LoadData();
+            LoadComboBoxLop(); // Tải danh sách lớp trước
+            LoadData();        // Sau đó mới tải danh sách sinh viên
+        }
+
+        // --- HÀM TẢI DANH SÁCH LỚP TỪ SQL VÀO COMBOBOX ---
+        private void LoadComboBoxLop()
+        {
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    string query = "SELECT MaLop, TenLop FROM LopHoc";
+                    SqlDataAdapter da = new SqlDataAdapter(query, conn);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+
+                    cboLop.DataSource = dt;
+                    cboLop.DisplayMember = "Malop"; // Tên hiển thị ra ngoài
+                    cboLop.ValueMember = "MaLop";    // Giá trị thực sự được lưu
+                    cboLop.SelectedIndex = -1;       // Để trống ban đầu
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Lỗi tải danh sách lớp: " + ex.Message);
+                }
+            }
         }
 
         // --- HÀM TẢI DỮ LIỆU TỪ SQL LÊN BẢNG ---
@@ -38,9 +61,7 @@ namespace QLSinhVienVaLopHoc // Giữ nguyên namespace của bạn
                     DataTable dt = new DataTable();
                     da.Fill(dt);
 
-                    dgvSinhVien.AutoGenerateColumns = false; // Tắt tự động tạo cột
-
-                    // Gán dữ liệu vào các cột đã tạo sẵn bên Designer
+                    dgvSinhVien.AutoGenerateColumns = false;
                     dgvSinhVien.Columns["colMaSV"].DataPropertyName = "MaSV";
                     dgvSinhVien.Columns["colHoTen"].DataPropertyName = "HoTen";
                     dgvSinhVien.Columns["colGioiTinh"].DataPropertyName = "GioiTinh";
@@ -56,25 +77,30 @@ namespace QLSinhVienVaLopHoc // Giữ nguyên namespace của bạn
             }
         }
 
-        // --- SỰ KIỆN: LÀM MỚI ---
         private void btnLamMoi_Click(object sender, EventArgs e)
         {
+            this.ActiveControl = null;
             txtMaSV.Clear();
             txtHoTen.Clear();
             cboGioiTinh.SelectedIndex = -1;
             dtpNgaySinh.Value = DateTime.Now;
-            txtLop.Clear();
+            cboLop.SelectedIndex = -1; // Xóa chọn ComboBox
             txtTimKiem.Clear();
-            txtMaSV.Focus(); // Đưa con trỏ chuột về ô Mã SV
-            LoadData(); // Tải lại toàn bộ bảng
+            txtMaSV.Focus();
+            LoadData();
         }
 
-        // --- SỰ KIỆN: THÊM SINH VIÊN ---
         private void btnThem_Click(object sender, EventArgs e)
         {
+            this.ActiveControl = null;
             if (string.IsNullOrEmpty(txtMaSV.Text) || string.IsNullOrEmpty(txtHoTen.Text))
             {
                 MessageBox.Show("Vui lòng nhập đủ Mã sinh viên và Họ tên!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            if (cboLop.SelectedIndex == -1)
+            {
+                MessageBox.Show("Vui lòng chọn lớp học!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -82,12 +108,17 @@ namespace QLSinhVienVaLopHoc // Giữ nguyên namespace của bạn
             ExecuteQuery(query, "Thêm sinh viên thành công!");
         }
 
-        // --- SỰ KIỆN: SỬA SINH VIÊN ---
         private void btnSua_Click(object sender, EventArgs e)
         {
+            this.ActiveControl = null;
             if (string.IsNullOrEmpty(txtMaSV.Text))
             {
                 MessageBox.Show("Vui lòng chọn hoặc nhập Mã sinh viên cần sửa!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            if (cboLop.SelectedIndex == -1)
+            {
+                MessageBox.Show("Vui lòng chọn lớp học!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -95,32 +126,30 @@ namespace QLSinhVienVaLopHoc // Giữ nguyên namespace của bạn
             ExecuteQuery(query, "Cập nhật thông tin thành công!");
         }
 
-        // --- SỰ KIỆN: XÓA SINH VIÊN ---
         private void btnXoa_Click(object sender, EventArgs e)
         {
+            this.ActiveControl = null;
             if (string.IsNullOrEmpty(txtMaSV.Text))
             {
                 MessageBox.Show("Vui lòng chọn sinh viên cần xóa!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            DialogResult dialogResult = MessageBox.Show("Bạn có chắc chắn muốn xóa sinh viên này?", "Xác nhận xóa", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-            if (dialogResult == DialogResult.Yes)
+            if (MessageBox.Show("Bạn có chắc chắn muốn xóa sinh viên này?", "Xác nhận xóa", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
                 string query = "DELETE FROM SinhVien WHERE MaSV=@MaSV";
                 ExecuteQuery(query, "Xóa sinh viên thành công!");
             }
         }
 
-        // --- SỰ KIỆN: TÌM KIẾM ---
         private void btnTim_Click(object sender, EventArgs e)
         {
+            this.ActiveControl = null;
             string keyword = txtTimKiem.Text.Trim();
             string query = $"SELECT * FROM SinhVien WHERE MaSV LIKE N'%{keyword}%' OR HoTen LIKE N'%{keyword}%' OR Lop LIKE N'%{keyword}%'";
             LoadData(query);
         }
 
-        // --- SỰ KIỆN: BẤM VÀO BẢNG ĐỂ ĐIỀN THÔNG TIN SANG BÊN TRÁI ---
         private void dgvSinhVien_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex >= 0)
@@ -135,11 +164,18 @@ namespace QLSinhVienVaLopHoc // Giữ nguyên namespace của bạn
                     dtpNgaySinh.Value = Convert.ToDateTime(row.Cells["colNgaySinh"].Value);
                 }
 
-                txtLop.Text = row.Cells["colLop"].Value?.ToString();
+                // Cập nhật lại ComboBox Lớp theo sinh viên được chọn
+                if (row.Cells["colLop"].Value != null && row.Cells["colLop"].Value.ToString() != "")
+                {
+                    cboLop.SelectedValue = row.Cells["colLop"].Value.ToString();
+                }
+                else
+                {
+                    cboLop.SelectedIndex = -1;
+                }
             }
         }
 
-        // --- HÀM DÙNG CHUNG ĐỂ THỰC THI THÊM/SỬA/XÓA (Tránh lặp code) ---
         private void ExecuteQuery(string query, string successMessage)
         {
             using (SqlConnection conn = new SqlConnection(connectionString))
@@ -150,16 +186,18 @@ namespace QLSinhVienVaLopHoc // Giữ nguyên namespace của bạn
                     cmd.Parameters.AddWithValue("@HoTen", txtHoTen.Text);
                     cmd.Parameters.AddWithValue("@GioiTinh", cboGioiTinh.Text);
                     cmd.Parameters.AddWithValue("@NgaySinh", dtpNgaySinh.Value);
-                    cmd.Parameters.AddWithValue("@Lop", txtLop.Text);
+
+                    // Lấy giá trị thực (Mã lớp) từ ComboBox để lưu vào SQL
+                    cmd.Parameters.AddWithValue("@Lop", cboLop.SelectedValue?.ToString() ?? "");
 
                     try
                     {
                         conn.Open();
-                        int result = cmd.ExecuteNonQuery(); // Trả về số dòng bị ảnh hưởng
+                        int result = cmd.ExecuteNonQuery();
                         if (result > 0)
                         {
                             MessageBox.Show(successMessage, "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                            LoadData(); // Tải lại bảng sau khi thay đổi
+                            LoadData();
                         }
                         else
                         {
