@@ -1,4 +1,5 @@
 using System;
+using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -20,7 +21,67 @@ namespace QLSinhVienVaLopHoc
             LoadData();
         }
 
-        // --- TẢI DỮ LIỆU LỚP HỌC BẰNG LINQ ---
+        // --- SỰ KIỆN: BẤM NÚT XEM DANH SÁCH SINH VIÊN ---
+        private void btnXemSinhVien_Click(object sender, EventArgs e)
+        {
+            this.ActiveControl = null;
+            if (string.IsNullOrEmpty(txtMaLop.Text))
+            {
+                MessageBox.Show("Vui lòng chọn một lớp học bên bảng để xem danh sách!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            try
+            {
+                using (var db = new QLSinhVienVaLopHocDataContext())
+                {
+                    // Lấy danh sách sinh viên thuộc mã lớp đang chọn
+                    var dsSinhVien = db.SinhViens.Where(sv => sv.Lop == txtMaLop.Text.Trim()).ToList();
+
+                    if (dsSinhVien.Count == 0)
+                    {
+                        MessageBox.Show($"Lớp '{txtTenLop.Text}' hiện chưa có sinh viên nào!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        return;
+                    }
+
+                    // Tự động tạo Form Popup hiển thị danh sách
+                    Form frmDS = new Form
+                    {
+                        Text = "Danh sách sinh viên - Lớp: " + txtTenLop.Text,
+                        Size = new Size(700, 450),
+                        StartPosition = FormStartPosition.CenterScreen,
+                        ShowIcon = false
+                    };
+
+                    DataGridView dgvDS = new DataGridView
+                    {
+                        Dock = DockStyle.Fill,
+                        AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
+                        AllowUserToAddRows = false,
+                        ReadOnly = true,
+                        SelectionMode = DataGridViewSelectionMode.FullRowSelect,
+                        AutoGenerateColumns = false
+                    };
+
+                    // Map các cột cho bảng Popup
+                    dgvDS.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "MaSV", HeaderText = "Mã SV" });
+                    dgvDS.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "HoTen", HeaderText = "Họ và Tên" });
+                    dgvDS.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "GioiTinh", HeaderText = "Giới Tính" });
+                    dgvDS.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "NgaySinh", HeaderText = "Ngày Sinh" });
+
+                    dgvDS.DataSource = dsSinhVien;
+                    frmDS.Controls.Add(dgvDS);
+
+                    frmDS.ShowDialog(); // Mở cửa sổ danh sách
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        // --- TẢI DỮ LIỆU LỚP HỌC ---
         private void LoadData(string keyword = "")
         {
             try
@@ -35,8 +96,6 @@ namespace QLSinhVienVaLopHoc
                     }
 
                     dgvLopHoc.AutoGenerateColumns = false;
-
-                    // BỔ SUNG MAP DỮ LIỆU ĐỂ HIỂN THỊ LÊN BẢNG
                     dgvLopHoc.Columns["colMaLop"].DataPropertyName = "MaLop";
                     dgvLopHoc.Columns["colTenLop"].DataPropertyName = "TenLop";
                     dgvLopHoc.Columns["colKhoa"].DataPropertyName = "Khoa";

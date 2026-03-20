@@ -24,10 +24,10 @@ namespace QLSinhVienVaLopHoc
                 // =========================================================
 
                 // Chạy Quản lý Sinh viên
-                Form formToOpen = new MainForm();
+                //Form formToOpen = new MainForm();
 
                 // Chạy Quản lý Lớp học
-                //Form formToOpen = new LopHocForm(); 
+                Form formToOpen = new LopHocForm(); 
 
                 // =========================================================
 

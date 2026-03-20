@@ -2,7 +2,6 @@
 {
     partial class LopHocForm
     {
-        // commit
         private System.ComponentModel.IContainer components = null;
 
         protected override void Dispose(bool disposing)
@@ -17,6 +16,7 @@
         private void InitializeComponent()
         {
             this.grpThongTin = new System.Windows.Forms.GroupBox();
+            this.btnXemSinhVien = new System.Windows.Forms.Button();
             this.btnLamMoi = new System.Windows.Forms.Button();
             this.btnXoa = new System.Windows.Forms.Button();
             this.btnSua = new System.Windows.Forms.Button();
@@ -40,6 +40,7 @@
             this.SuspendLayout();
 
             // grpThongTin
+            this.grpThongTin.Controls.Add(this.btnXemSinhVien);
             this.grpThongTin.Controls.Add(this.btnLamMoi);
             this.grpThongTin.Controls.Add(this.btnXoa);
             this.grpThongTin.Controls.Add(this.btnSua);
@@ -56,6 +57,16 @@
             this.grpThongTin.TabIndex = 0;
             this.grpThongTin.TabStop = false;
             this.grpThongTin.Text = "Thông tin lớp học";
+
+            // Nút Xem danh sách Sinh viên
+            this.btnXemSinhVien.BackColor = System.Drawing.Color.LightYellow;
+            this.btnXemSinhVien.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnXemSinhVien.Location = new System.Drawing.Point(23, 370);
+            this.btnXemSinhVien.Name = "btnXemSinhVien";
+            this.btnXemSinhVien.Size = new System.Drawing.Size(300, 40);
+            this.btnXemSinhVien.Text = "Xem danh sách Sinh viên";
+            this.btnXemSinhVien.UseVisualStyleBackColor = false;
+            this.btnXemSinhVien.Click += new System.EventHandler(this.btnXemSinhVien_Click);
 
             // Lables & TextBoxes
             this.lblMaLop.AutoSize = true; this.lblMaLop.Location = new System.Drawing.Point(20, 40); this.lblMaLop.Text = "Mã lớp:";
@@ -132,6 +143,7 @@
         private System.Windows.Forms.Button btnSua;
         private System.Windows.Forms.Button btnXoa;
         private System.Windows.Forms.Button btnLamMoi;
+        private System.Windows.Forms.Button btnXemSinhVien;
         private System.Windows.Forms.GroupBox grpTimKiem;
         private System.Windows.Forms.TextBox txtTimKiem;
         private System.Windows.Forms.Button btnTim;
